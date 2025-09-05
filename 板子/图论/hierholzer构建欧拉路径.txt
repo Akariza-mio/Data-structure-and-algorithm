@@ -1,0 +1,91 @@
+#include<iostream>
+#include<unordered_map>
+#include<vector>
+#include<string>
+#include<stack>
+#include<algorithm>
+using namespace std;
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n;
+	cin>>n;
+	vector<string> a(n);
+	for(int i=0;i<n;i++)cin>>a[i];
+	unordered_map<string,vector<string>> g;
+	unordered_map<string,int> ind,outd;
+	for(string s:a){
+		string fr=s.substr(0,2),ba=s.substr(1,2);
+		g[fr].push_back(ba);
+		outd[fr]++;
+		ind[ba]++;
+	}
+	string A;
+	int cs=0,ce=0,flag=1;
+	unordered_map<string,int> dif;
+	for(auto node:outd)dif[node.first]+=node.second;
+	for(auto node:ind)dif[node.first]-=node.second;
+	for(auto node:dif){
+		int tp=node.second;
+		if(tp==1){A=node.first;cs++;}
+		else if(tp==-1)ce++;
+		else if(tp!=0){
+			flag=0;
+			break;
+		}
+	}
+	if(!((cs==0&&ce==0)||(cs==1&&ce==1))){
+		flag=0;
+	}
+	if(flag==0){
+		cout<<"NO"<<endl;
+		return 0;
+	}
+	if(cs==0){
+		for(auto node:outd){
+		if(node.second>0){
+			A=node.first;
+			break;
+		}
+		}
+	}
+	stack<string> st;
+	vector<string> path;
+	st.push(A);
+	while(!st.empty()){
+		string tp=st.top();
+		if(g[tp].empty()){
+			path.push_back(tp);
+			st.pop();
+		}
+		else{
+			string next=g[tp].back();
+			g[tp].pop_back();
+			st.push(next);
+		}
+	}
+	reverse(path.begin(),path.end());
+	if(path.size()!=n+1){
+		cout<<"NO"<<endl;
+		return 0;
+	}
+	string ans="";
+	ans+=path[0];
+	for(int i=1;i<path.size();i++)ans+=path[i][1];
+	if(ans.size()!=n+2){
+		cout<<"NO"<<endl;
+		return 0;
+	}
+	unordered_map<string,int> a_cnt;
+	for(int i=0;i<n;i++)a_cnt[a[i]]++;
+	for(int i=0;i<=ans.size()-3;i++){
+		string tep=ans.substr(i,3);
+		if(a_cnt[tep]==0){
+			cout<<"NO"<<endl;
+			return 0;
+		}
+		a_cnt[tep]--;
+	}
+	cout<<"YES"<<endl<<ans;
+    return 0;
+}

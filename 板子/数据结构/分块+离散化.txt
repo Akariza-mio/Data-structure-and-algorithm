@@ -1,0 +1,89 @@
+#include<iostream>
+#include<cstdio>
+#include<cmath>
+#include<vector>
+#include<cstring>
+#include<algorithm>
+#include<map>
+using namespace std;
+const int N=1e5+10,M=5e3+5,big=2121212121;
+int a[N],dis[N],cnt[N];
+int pos[N],res[M][M];
+int ll[M],rr[M];
+vector<int> ap[N*2];
+map<int,int> w;
+int count(int l,int r,int x){
+	return upper_bound(ap[x].begin(),ap[x].end(),r)-lower_bound(ap[x].begin(),ap[x].end(),l);
+}
+int ask(int l,int r){
+	if(pos[l]==pos[r]){
+		int pub=big,maxx=0;
+		memset(cnt,0,sizeof(cnt));
+		for(int i=l;i<=r;i++){
+			cnt[a[i]]++;
+			if(maxx<cnt[a[i]])maxx=cnt[a[i]],pub=a[i];
+			else if(maxx==cnt[a[i]])pub=min(a[i],pub);
+		}
+		return pub;
+	}
+	int maxx=0,pub=big,tp=0;
+	for(int i=l;i<=rr[pos[l]];i++) {
+		tp=count(l,r,a[i]);
+		if(tp>maxx)maxx=tp,pub=a[i];
+		else if(tp==maxx)pub=min(pub,a[i]);
+	}
+	for (int i=ll[pos[r]];i<=r;i++) {
+		tp=count(l,r,a[i]);
+		if(tp > maxx)maxx=tp,pub=a[i];
+		else if(tp == maxx)pub=min(pub,a[i]);
+	}
+	if (pos[l] + 1 <= pos[r] - 1) {
+		tp=count(l,r,res[pos[l]+1][pos[r]-1]);
+		if (maxx<tp)maxx=tp,pub=res[pos[l]+1][pos[r]-1];
+		else if(maxx==tp)pub=min(pub,res[pos[l]+1][pos[r]-1]);
+	}
+	return pub;
+}
+void solve(){
+	int n,rg=80,l,r;
+	cin>>n;
+	for(int i=1;i<=n;i++){
+		cin>>a[i];
+		pos[i]=(i-1)/rg+1;
+		dis[++dis[0]]=a[i];
+	}
+	sort(dis+1,dis+dis[0]+1);
+	for(int i=1;i<=dis[0];i++)w[dis[i]]=i;
+	for(int i=1;i<=n;i++)a[i]=w[a[i]];
+	for(int i=1;i<=n;i++)ap[a[i]].push_back(i);
+	for(int i=1;i<=pos[n];i++){
+		ll[i]=(i-1)*rg+1;
+		rr[i]=i*rg;
+	}
+	rr[pos[n]]=n;
+	for(int i=1;i<=pos[n];i++){
+		memset(cnt,0,sizeof(cnt));
+		int pub=big,maxx=-big;
+		for(int j=i;j<=pos[n];j++){
+			for(int k=ll[j];k<=rr[j];k++){
+				cnt[a[k]]++;
+				if(cnt[a[k]]>maxx)maxx=cnt[a[k]],pub=a[k];
+				else if(cnt[a[k]]==maxx)pub=min(a[k],pub);
+			}
+			res[i][j]=pub;
+		}
+	}
+	for(int i=1;i<=n;i++){
+		cin>>l>>r;
+		cout<<dis[ask(l,r)];
+		cout<<endl;
+	}
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+    solve();
+	return 0;
+}
+
+

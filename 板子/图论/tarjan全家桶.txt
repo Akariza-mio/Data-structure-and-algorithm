@@ -1,0 +1,98 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const int N=100010;
+vector<int> g[N];
+int dfn[N],low[N],t;
+bool vis[N],is_cut[N];
+vector<pair<int,int>> bri;
+stack<int> s;
+int ebcc_cnt;
+void tarjan(int u,int p){
+	dfn[u]=low[u]=++t;
+	vis[u]=true;
+	s.push(u);
+	int child=0;
+	for(int v:g[u]){
+		if(v==p)continue;
+		if(!vis[v]){
+			child++;
+			tarjan(v,u);
+			low[u]=min(low[u],low[v]);
+			if(low[v]>dfn[u])bri.emplace_back(min(u,v),max(u,v));
+			if(low[v]>=dfn[u]&&p!=-1)is_cut[u]=true;
+		}else{
+			low[u]=min(low[u],dfn[v]);
+		}
+	}
+	if(p==-1&&child>1)is_cut[u]=true;
+	if(dfn[u]==low[u]){
+		ebcc_cnt++;
+		while(1){
+			int x=s.top();s.pop();
+			if(x==u)break;
+		}
+	}
+}
+bool vis_ebcc[N];
+set<pair<int,int>> bri_s;
+void dfs(int u){
+	vis_ebcc[u]=true;
+	for(int v:g[u]){
+		if(bri_s.count({min(u,v),max(u,v)}))continue;
+		if(!vis_ebcc[v])dfs(v);
+	}
+}
+bool vis2[N];
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n,m;
+	cin>>n>>m;
+	for(int i=0;i<m;++i){
+		int u,v;
+		cin>>u>>v;
+		g[u].push_back(v);
+		g[v].push_back(u);
+	}
+	for(int i=1;i<=n;++i)if(!vis[i])tarjan(i,-1);
+	int cut_cnt=0;
+	for(int i=1;i<=n;++i)if(is_cut[i])cut_cnt++;
+	for(auto& p:bri)bri_s.insert(p);
+	int eebcc_cnt=0;
+	for(int i=1;i<=n;i++){
+		if(!vis_ebcc[i]){
+			dfs(i);
+			eebcc_cnt++;
+		}
+	}
+	int oo=0;
+	fill(vis2+1,vis2+n+1,0);
+	for(int i=1;i<=n;++i){
+		if(vis2[i])continue;
+		vector<int> comp;
+		queue<int> q;
+		q.push(i);
+		vis2[i]=true;
+		while(!q.empty()){
+			int u=q.front();q.pop();
+			comp.push_back(u);
+			for(int v:g[u]){
+				if(!vis2[v]){
+					vis2[v]=true;
+					q.push(v);
+				}
+			}
+		}
+		int nc=comp.size(),ec=0;
+		unordered_set<int> in_comp(comp.begin(),comp.end());
+		for(int u:comp){
+			for(int v:g[u]){
+				if(u<v&&in_comp.count(v))ec++;
+			}
+		}
+		if(nc>1&&ec==nc-1)oo++;
+	}
+	cout<<cut_cnt<<" "<<(ebcc_cnt-oo)<<" "<<bri.size()<<" "<<eebcc_cnt<<endl;
+	return 0;
+}

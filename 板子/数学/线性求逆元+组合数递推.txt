@@ -1,0 +1,32 @@
+#include<iostream>
+using namespace std;
+using ll=long long;
+const int mod=998244353,maxn=1e7+5;
+int inf[maxn];
+void init_inf(int n){
+	inf[1]=1;
+	for(int i=2;i<=n;i++)inf[i]=(ll)(mod-mod/i)*inf[mod%i]%mod;
+}
+int main(){
+	int n;
+	cin>>n;
+	if(n==1)cout<<2;
+	else{
+		init_inf(n);
+		ll ans=2,p2=1,C=1;
+		int kk=0;
+		for(int i=1;i<n;i++){
+			p2=p2*2%mod;
+			int k=(i+1)/2;
+			if(i==1)C=1;
+			else{
+				if(k==kk)C=C*i%mod*inf[i-k]%mod;
+				else C=C*i%mod*inf[k]%mod;
+			}
+			ans=(2*ans+p2+C)%mod;
+			kk=k;
+		}
+		cout<<ans;
+	}
+	return 0;
+}

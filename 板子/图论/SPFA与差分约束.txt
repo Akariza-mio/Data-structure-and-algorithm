@@ -1,0 +1,62 @@
+#include<bits/stdc++.h>
+using namespace std;
+using db=double;
+const db eps=1e-8;
+struct e {
+    int to;
+    db w;
+    e(int to2,db w2):to(to2),w(w2){}
+};
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int n,m;
+    db l,r;
+    cin>>n>>m>>l>>r;
+    db a[505][505];
+    for(int i=1; i<=n; i++) {
+        for(int j=1; j<=m; j++)cin>>a[i][j];
+    }
+    vector<vector<e>> g(n+m+1);
+    for(int i=1; i<=n; i++) {
+        for(int j=1; j<=m; j++) {
+            db logc=log(a[i][j]),logl=log(l),logr=log(r);
+            g[i].push_back({n+j,logr-logc});
+            g[n+j].push_back({i,logc-logl});
+        }
+    }
+    int ro=n+m;
+    vector<db> dis(ro+1,0);
+    vector<int> cnt(ro+1,0);
+    vector<bool> in(ro+1,true);
+    queue<int> q;
+    for(int i=1; i<=ro; i++) q.push(i);
+    int lilimm=2*ro;
+    while(!q.empty()&&lilimm--) {
+        int u=q.front();
+        q.pop();
+        in[u]=false;
+        for(auto tp:g[u]) {
+            int v=tp.to;
+            db w=tp.w;
+            if(dis[v]>dis[u]+w + eps) {
+                dis[v]=dis[u]+w;
+                cnt[v]=cnt[u]+1;
+                if(cnt[v]>=ro){
+                    cout<<"NO"<<endl;
+                    return 0;
+                }
+                if(!in[v]) {
+                    q.push(v);
+                    in[v]=true;
+                }
+            }
+        }
+    }
+    if (lilimm<=0) {
+        cout<<"NO"<<endl;
+        return 0;
+    }
+    cout<<"YES"<<endl;
+    return 0;
+}

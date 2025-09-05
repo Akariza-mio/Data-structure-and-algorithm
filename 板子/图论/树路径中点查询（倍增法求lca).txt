@@ -1,0 +1,79 @@
+#include<iostream>
+#include<vector>
+using namespace std;
+#define N 100010
+#define log 17
+vector<int> tr[N];
+int depth[N],sz[maxn];
+int f[N][log];
+void dfs(int u,int parent){
+    f[u][0]=parent;
+	for(int i=1;i<log;i++){
+		f[u][i]=f[f[u][i-1]][i-1];
+	}
+	for(int v:tr[u]){
+                sz[u]=1;
+		if(v==parent)continue;
+		depth[v]=depth[u]+1;
+		dfs(v,u);
+                sz[u]+=sz[v];
+	}
+}
+int jumptok(int u,int k){
+    for(int i=0;i<log;i++){
+		if(k&(1<<i)){
+			u=f[u][i];
+			if(u==0)break;
+		}
+	}
+	return u;
+}
+int lca(int u,int v){
+	if(depth[u]<depth[v])swap(u,v);
+	for(int i=log-1;i>=0;i--){
+		if(depth[u]-(1<<i)>=depth[v]){
+			u=f[u][i];
+		}
+	}
+	if(u==v)return u;
+	for(int i=log-1;i>=0;i--){
+		if(f[u][i]!=f[v][i]){
+			u=f[u][i];
+			v=f[v][i];
+		}
+	}
+	return f[u][0];
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n,q;
+	cin>>n>>q;
+	for(int i=1;i<=n-1;i++){
+		int u=0,v=0;
+		cin>>u>>v;
+		tr[u].push_back(v);
+		tr[v].push_back(u);
+	}
+	depth[1]=0;
+	dfs(1,0);
+	while(q--){
+		int x,y;
+		cin>>x>>y;
+		if(depth[x]<depth[y]){
+			int tp=x;
+			x=y;
+			y=tp;
+		}
+		int l=depth[x]+depth[y]-2*depth[lca(x,y)]+1;
+		if(l%2==1){
+			cout<<jumptok(x,(l-1)/2)<<endl;
+		}else{
+			int a=jumptok(x,l/2);
+			int b=jumptok(x,l/2-1);
+			if(a>b)swap(a,b);
+			cout<<a<<" "<<b<<endl;
+		}
+	}
+	return 0;
+}

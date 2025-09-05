@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn=310;
+double dp[maxn][maxn][maxn];
+bool vis[maxn][maxn][maxn];
+int n;
+double dpdp(int a1,int a2,int a3){
+	if(a1==0&&a2==0&&a3==0)return 0;
+	if(vis[a1][a2][a3])return dp[a1][a2][a3];
+	double sum=a1+a2+a3;
+	double ans=0;
+	ans=n/sum;
+	if(a1>0)ans+=(a1/sum)*dpdp(a1-1,a2,a3);
+	if(a2>0)ans+=(a2/sum)*dpdp(a1+1,a2-1,a3);
+	if(a3>0)ans+=(a3/sum)*dpdp(a1,a2+1,a3-1);
+	vis[a1][a2][a3]=1;
+	dp[a1][a2][a3]=ans;
+	return ans;
+}
+int main(){
+	cin>>n;
+	int a1=0,a2=0,a3=0;
+	for(int i=0;i<n;i++){
+		int tp=0;
+		cin>>tp;
+		if(tp==1)a1++;
+		if(tp==2)a2++;
+		if(tp==3)a3++;
+	}
+	double an=dpdp(a1,a2,a3);
+	printf("%.9lf",an);
+	return 0;
+}

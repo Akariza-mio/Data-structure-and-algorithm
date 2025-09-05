@@ -1,0 +1,78 @@
+#include<iostream>
+#include<cstdio>
+using namespace std;
+#define lc p*2
+#define rc p*2+1
+#define ll long long
+#define maxn 100010
+struct tree{
+	int l,r;
+	ll sum,laz;
+}tr[4*maxn];
+int a[maxn];
+void build(int p,int l,int r){
+	tr[p].l=l;
+	tr[p].r=r;
+	if(l==r){
+		tr[p].sum=a[l];
+		return;
+	}
+	int m=(tr[p].l+tr[p].r)>>1;
+	build(lc,l,m);
+	build(rc,m+1,r);
+	tr[p].sum=tr[lc].sum+tr[rc].sum;
+}
+void pushdown(int p){
+	if(tr[p].laz){
+		tr[lc].sum+=tr[p].laz*(tr[lc].r-tr[lc].l+1);
+		tr[rc].sum+=tr[p].laz*(tr[rc].r-tr[rc].l+1);
+		tr[lc].laz+=tr[p].laz;
+		tr[rc].laz+=tr[p].laz;
+		tr[p].laz=0;
+	}
+}
+void mdf(int p,int x,int y,int k){
+	if(x<=tr[p].l&&y>=tr[p].r){
+		tr[p].sum+=(ll)k*(tr[p].r-tr[p].l+1);
+		tr[p].laz+=k;
+		return;
+	}
+	pushdown(p);
+	int m=(tr[p].l+tr[p].r)>>1;
+	if(x<=m)mdf(lc,x,y,k);
+	if(y>m)mdf(rc,x,y,k);
+	tr[p].sum=tr[lc].sum+tr[rc].sum;
+}
+ll que(int p,int x,int y){
+	if(x<=tr[p].l&&tr[p].r<=y){
+		return tr[p].sum;
+	}
+	pushdown(p);
+	int m=(tr[p].l+tr[p].r)>>1;
+	ll s=0;
+	if(x<=m)s+=que(lc,x,y);
+	if(y>m)s+=que(rc,x,y);
+	return s;
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n,m;
+	scanf("%d%d",&n,&m);
+	for(int i=1;i<=n;i++)cin>>a[i];
+	build(1,1,n);
+	while(m--){
+		int choice=0,x=0,y=0,k=0;
+		scanf("%d",&choice);
+		if(choice==1){
+			scanf("%d%d%d",&x,&y,&k);
+			mdf(1,x,y,k);
+		}
+		else{
+			scanf("%d%d",&x,&y);
+			cout<<que(1,x,y)<<endl;
+		}
+	}
+	return 0;
+}
+

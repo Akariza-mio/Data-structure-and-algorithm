@@ -1,0 +1,102 @@
+#include<bits/stdc++.h>
+using namespace std;
+vector<int> euler(int n){
+	vector<int> phi(n+1);
+	for(int i=1;i<=n;i++)phi[i]=i;
+	for (int p=2;p<=n;p++){
+		if(phi[p]==p){
+			phi[p]=p-1;
+			for(int mul=2*p;mul<=n;mul+=p){
+				phi[mul]=(phi[mul]/p)*(p-1);
+			}
+		}
+	}
+	return phi;
+}
+vector<int> mobius(int n){
+	vector<int> mu(n+1,1);
+	vector<bool> is_prime(n+1,true);
+	for(int p=2;p<=n;p++){
+		if(is_prime[p]){
+			for(int mul=p;mul<=n;mul+=p){
+				is_prime[mul]=(mul==p)?is_prime[mul]:false;
+				if(mul%(p*p)==0)mu[mul]=0;
+				else mu[mul]*=-1;
+			}
+		}
+	}
+	return mu;
+}
+vector<int> divisor_cnt(int n){
+	vector<int> d(n+1,1);
+	for(int p=2;p<=n;p++){
+		if(d[p]==1){ 
+			for(int mul=p;mul<=n;mul+=p){
+				int exp=0;
+				int tp=mul;
+				while(tp%p==0){
+					exp++;
+					tp/=p;
+				}
+				d[mul]*=(exp+1);
+			}
+		}
+	}
+	return d;
+}
+vector<int> divisorsum(int n){
+	vector<int> sigma(n+1,1);
+	for(int p=2;p<=n;p++){
+		if(sigma[p]==1){
+			for(int mul=p;mul<=n;mul+=p){
+				int exp=0;
+				int tp=mul;
+				while(tp%p==0){
+					exp++;
+					tp/=p;
+				}
+				int sum=1;
+				int power=1;
+				for (int e=1;e<=exp;e++){
+					power*=p;
+					sum+=power;
+				}
+				sigma[mul]*=sum;
+			}
+		}
+	}
+	return sigma;
+}
+vector<int> f(int n){
+	vector<int> phi=euler(n);
+	vector<int> mu=mobius(n);
+	vector<int> sigma1=divisorsum(n);
+	vector<int> res(n+1,0);
+	for(int d=1;d<=n;d++){
+		if(mu[d]==0)continue;
+		int t=mu[d]*phi[d];
+		for(int k=1;k*d<=n;k++){
+			res[k*d]+=t*sigma1[k];
+		}
+	}
+	return res;
+}
+int main(){
+	int n;
+	cin>>n;
+	vector<int> phi=euler(n);
+	for(int i=1;i<=n;i++)cout<<phi[i]<<" ";
+	cout<<endl;
+	vector<int> mu=mobius(n);
+	for(int i=1;i<=n;i++)cout<<mu[i]<<" ";
+	cout<<endl;
+	vector<int> sigma0=divisor_cnt(n);
+	for(int i=1;i<=n;i++)cout<<sigma0[i]<<" ";
+	cout<<endl;
+	vector<int> sigma1=divisorsum(n);
+	for(int i=1;i<=n;i++)cout<<sigma1[i]<<" ";
+	cout<<endl;
+	vector<int> ff=f(n);
+	for(int i=1;i<=n;i++)cout<<ff[i]<<" ";
+	return 0;
+}

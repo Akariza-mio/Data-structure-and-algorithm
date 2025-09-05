@@ -1,0 +1,31 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const int maxn=1e6+5;
+int fail[maxn];
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	string s1,s2;
+	cin>>s1>>s2;
+	int n=s1.size(),m=s2.size(),p=0;
+	fail[0]=0;
+	for(int i=1;i<m;i++){
+		while(s2[i]!=s2[p]&&p)p=fail[p-1];
+		if(s2[i]==s2[p])p++;
+		fail[i]=p;
+	}
+	p=0;
+	for(int i=0;i<n;i++){
+		while(s2[p]!=s1[i]&&p)p=fail[p-1];
+		if(s2[p]==s1[i])p++;
+		if(p==m){
+			cout<<i-m+2<<endl;
+			p=fail[p-1];
+			//这里注意一下，匹配成功以后也要跳 fail，具体原理和失配一样，都是前后缀相同嘛。
+			//不过如果题目要求匹配的模式串不能重叠，这里就得 p=0 了。好像有个剪布条的题就得这么写。
+		}
+	}
+	for(int i=0;i<m;i++)cout<<fail[i]<<" ";
+	return 0;
+}

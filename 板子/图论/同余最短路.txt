@@ -1,0 +1,63 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const ll inf=LLONG_MAX;
+struct state{
+	ll p;
+	ll mod;
+	ll dis;
+	bool operator>(state a)const{
+		return dis>a.dis;
+	}
+};
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int T;
+	cin>>T;
+	while(T--){
+		ll k=0,d12=0,d23=0,d34=0,d41=0;
+		cin>>k>>d12>>d23>>d34>>d41;
+		ll M=d12+d23+d34+d41;
+		vector<pair<ll,ll>> g[5];
+		vector<vector<ll>> dis(5,vector<ll>(M,inf));
+		g[1].push_back({2,d12});
+		g[2].push_back({3,d23});
+		g[3].push_back({4,d34});
+		g[4].push_back({1,d41});
+		g[2].push_back({1,d12});
+		g[3].push_back({2,d23});
+		g[4].push_back({3,d34});
+		g[1].push_back({4,d41});
+		priority_queue<state,vector<state>,greater<state>> pq;
+		dis[1][0]=0;
+		pq.push({1,0,0});
+		while(!pq.empty()){
+			state tp=pq.top();
+			pq.pop();
+			ll u=tp.p,mu=tp.mod,d=tp.dis;
+			if(d>dis[u][mu])continue;
+			for(auto tt:g[u]){
+				ll v=tt.first;
+				ll newm=(mu+tt.second)%M,newd=d+tt.second;
+				if(newd<dis[v][newm]){
+					dis[v][newm]=newd;
+					pq.push({v,newm,newd});
+				}
+			}
+		}
+		ll ans=inf;
+		for(ll r=0;r<M;r++){
+			if(dis[1][r]==inf)continue;
+			if(dis[1][r]>=k){
+				if(dis[1][r]<ans)ans=dis[1][r];
+			}else{
+				ll m=(k-dis[1][r]+M-1)/M;
+				ll all=m*M+dis[1][r];
+				if(all<ans)ans=all;
+			}
+		}
+		cout<<ans<<endl;
+	}
+	return 0;
+}

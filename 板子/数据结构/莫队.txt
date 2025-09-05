@@ -1,0 +1,55 @@
+#include<iostream>
+#include<algorithm>
+#include<cmath>
+#include<unordered_map>
+using namespace std;
+#define N 100010
+int pos[N],a[N],ans[N],an;
+int n,m;
+unordered_map<int,int> cnt;
+struct Q{
+    int l,r,k;
+}ask[N];
+bool cmp(Q x,Q y){
+	if(pos[x.l]==pos[y.l])return x.r<y.r;
+	return pos[x.l]<pos[y.l];
+}
+void add(int x){
+    if(x>=100000)return;
+	if(cnt[a[x]]==a[x])an--;
+	cnt[a[x]]++;
+	if(cnt[a[x]]==a[x])an++;
+}
+void del(int x){
+    if(x>=100000)return;
+	if(cnt[a[x]]==a[x])an--;
+	cnt[a[x]]--;
+	if(cnt[a[x]]==a[x])an++;
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cin>>n>>m;
+	int size=sqrt(n);
+	for(int i=1;i<=n;i++){
+		cin>>a[i];
+		pos[i]=i/size;
+	}
+	for(int i=0;i<m;i++){
+		cin>>ask[i].l>>ask[i].r;
+		ask[i].k=i;
+	}
+	sort(ask,ask+m,cmp);
+	int cl=1,cr=0;
+	for(int i=0;i<m;i++){
+		while(ask[i].l<cl)add(--cl);
+		while(ask[i].r>cr)add(++cr);
+		while(ask[i].l>cl)del(cl++);
+		while(ask[i].r<cr)del(cr--);
+		ans[ask[i].k]=an;
+	}
+	for(int i=0;i<m;i++){
+		cout<<ans[i]<<endl;
+	}
+	return 0;
+}

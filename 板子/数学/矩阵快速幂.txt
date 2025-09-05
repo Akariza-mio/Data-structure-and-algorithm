@@ -1,0 +1,102 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef vector<vector<double>> mat;
+mat mul1(const mat& A,const mat& B){
+	mat C(9,vector<double>(9,0.0));
+	for(int i=0;i<9;i++){
+		for (int k=0;k<9;k++){
+			if(A[i][k]==0)continue;
+			for(int j=0;j<9;j++){
+				C[i][j]+=A[i][k]*B[k][j];
+			}
+		}
+	}
+	return C;
+}
+vector<double> mul2(const mat& A,const vector<double>& v){
+	vector<double> res(9,0.0);
+	for(int i=0;i<9;i++){
+		for(int j=0;j<9;j++){ 
+			res[i]+=A[i][j]*v[j];
+		}
+	} 
+	return res;
+}
+mat matpower(mat base,long long exp){
+	mat res(9,vector<double>(9,0.0));
+	for(int i=0;i<9;i++)res[i][i]=1.0;
+	while(exp>0){
+		if(exp&1)res=mul1(res,base);
+		base=mul1(base,base);
+		exp>>=1;
+	}
+	return res;
+}
+int main(){
+	int n;
+	cin>>n;
+	vector<double> p={0.0,0.1,0.2,0.3,0.5,0.7,0.8,0.9};
+	mat m(9,vector<double>(9,0.0));
+	m[0][8]=0.0;
+	m[8][8]=1.0;
+	for(int i=0;i<8;i++){
+		m[0][i]=p[i];
+		m[8][i]=p[i];
+	}
+	m[1][0]=1-p[0]; 
+	for(int j=1;j<9;j++)m[1][j]=0.0;
+	for(int j=0;j<9;j++){
+		if(j==1){
+			m[2][1]=1-p[1];
+			continue;
+		}
+		m[2][j]=0.0;
+	}
+	for(int j=0;j<9;j++){
+		if(j==2){
+			m[3][2]=1-p[2];
+			continue;
+		}
+		m[3][j]=0.0;
+	}
+	for(int j=0;j<9;j++){
+		if(j==3){
+			m[4][3]=1-p[3];
+			continue;
+		}
+		m[4][j]=0.0;
+	}
+	for(int j=0;j<9;j++){
+		if(j=4){
+			m[5][4]=1-p[4];
+			continue;
+		}
+		m[5][j]=0.0;
+	}
+	for(int j=0;j<9;j++){
+		if(j==5){
+			m[6][5]=1-p[5];
+			continue;
+		}
+		m[6][j]=0.0;
+	}
+	for(int j=0;j<9;j++){
+		if(j==6){
+			m[7][6]=1-p[6];
+			continue;
+		}
+		if(j==7){
+			m[7][7]=1-p[7];
+			continue;
+		}
+		m[7][j]=0.0;
+	}
+	vector<double> init(9,0);
+	init[0]=1.0;
+	mat m_power=matpower(m,n);
+	vector<double> vec=mul2(m_power,init);
+	double total=vec[8];
+	double ans=total/n*100;
+	printf("%f",ans);
+	return 0;
+}

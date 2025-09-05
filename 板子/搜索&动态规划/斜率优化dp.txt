@@ -1,0 +1,36 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const long long maxn=200005;
+ll dp[maxn],a[maxn];
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	ll n,c;
+	cin>>n>>c;
+	for(int i=1;i<=n;i++)cin>>a[i];
+	deque<ll> q;
+	dp[1]=0;
+	q.push_back(1);
+	for(int i=2;i<=n;i++){
+		while(q.size()>1){
+			int j1=q.front(),j2=q[1];
+			ll cost1=dp[j1]+(a[i]-a[j1])*(a[i]-a[j1])+c;
+            ll cost2=dp[j2]+(a[i]-a[j2])*(a[i]-a[j2])+c;
+			if(cost1>cost2)q.pop_front();
+			else break;
+		}
+		int j=q.front();
+		dp[i]=dp[j]+(a[i]-a[j])*(a[i]-a[j])+c;
+		while(q.size()>1){
+			int j1=q[q.size()-2],j2=q.back();
+			ll k1=a[j1]*2,k2=a[j2]*2,k3=a[i]*2;
+			ll b1=dp[j1]+a[j1]*a[j1],b2=dp[j2]+a[j2]*a[j2],b3=dp[i]+a[i]*a[i];
+			if((b3-b2)*(k2-k1)<(b2-b1)*(k3-k2))q.pop_back();
+			else break;
+		}
+		q.push_back(i);
+	}
+	cout<<dp[n];
+	return 0;
+}

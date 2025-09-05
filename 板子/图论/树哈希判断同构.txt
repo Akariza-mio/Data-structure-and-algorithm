@@ -1,0 +1,93 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ull=unsigned long long;
+const ull P=1e9+7;
+const int maxn=500010;
+vector<int> tree[maxn];
+ull f[maxn],pw[maxn];
+int siz[maxn];
+void dfs(int u,int p){
+	siz[u]=1;
+	vector<pair<ull,int>> hash1;
+	for(int v:tree[u]){
+		if(v==p)continue;
+		dfs(v,u);
+		siz[u]+=siz[v];
+		hash1.emplace_back(f[v],siz[v]);
+	}
+	sort(hash1.begin(),hash1.end());
+	f[u]=1;
+	for(auto [a,b]:hash1){
+		f[u]+=a*pw[b];
+	}
+}
+bool mirror(int u,int p){
+	multiset<ull> hash2;
+	vector<int> son;
+	for(int v:tree[u]){
+		if(v==p)continue;
+		hash2.insert(f[v]);
+		son.push_back(v);
+	}
+	if(hash2.size()%2==0){
+		while(!hash2.empty()){
+			auto it=hash2.begin();
+			ull tp=*it;
+			hash2.erase(it);
+			auto it2=hash2.find(tp);
+			if(it2==hash2.end())return 0;
+			hash2.erase(it2);
+		}
+		return 1;
+	}else{
+		for(int v:son){
+			multiset<ull> t=hash2;
+			auto it=t.find(f[v]);
+			if(it==t.end())continue;
+			t.erase(it);
+			int flag=1;
+			while(!t.empty()){
+				auto it2=t.begin();
+				ull tp=*it2;
+				t.erase(it2);
+				auto it3=t.find(tp);
+				if(it3==t.end()){
+					flag=0;
+					break;
+				}
+				t.erase(it3);
+			}
+			if(flag&&mirror(v,u))return 1;
+		}
+		return 0;
+	}
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	pw[0]=1;
+	for(int i=1;i<maxn;i++){
+		pw[i]=pw[i-1]*P;
+	}
+	int T;
+	cin>>T;
+	while(T--){
+		int n=0;
+		cin>>n;
+		for(int i=1;i<=n;i++) {
+			tree[i].clear();
+			f[i]=0;
+			siz[i]=0;
+		}
+		for(int i=1;i<=n-1;i++){
+			int u=0,v=0;
+			cin>>u>>v;
+			tree[u].push_back(v);
+			tree[v].push_back(u);
+		}
+		dfs(1,0);
+		if(mirror(1,0))cout<<"YES"<<endl;
+		else cout<<"NO"<<endl;
+	}
+	return 0;
+}

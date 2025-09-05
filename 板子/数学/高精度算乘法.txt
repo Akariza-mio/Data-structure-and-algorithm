@@ -1,0 +1,31 @@
+#include<iostream>
+#include<vector>
+#include<string>
+using namespace std;
+string mul(string a,string b){
+	if(a=="0"||b=="0")return"0";
+	int n=a.size(),m=b.size();
+	vector<int> r(n+m,0);
+	for(int i=n-1;i>=0;i--)for(int j=m-1;j>=0;j--){
+		int mul=(a[i]-'0')*(b[j]-'0');
+		int sum=mul+r[i+j+1];
+		r[i+j+1]=sum%10;
+		r[i+j]+=sum/10;
+	}
+	string s;
+	for(int x:r)if(!(s.empty()&&x==0))s+=x+'0';
+	return s.empty()?"0":s;
+}
+int main(){
+	int n,k;
+	cin>>n>>k;
+	string a="1";
+	for(int i=0;i<n;i++){
+		string x;
+		cin>>x;
+		a=mul(a,x);
+		if(a.size()>k)a="1";
+	}
+	cout<<a<<endl;
+	return 0;
+}

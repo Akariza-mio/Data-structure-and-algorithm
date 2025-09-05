@@ -1,0 +1,48 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const ll BIG=1e18;
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n,m;
+	cin>>n>>m;
+	vector<vector<ll>> dis(n+1,vector<ll>(n+1,BIG));
+	vector<vector<int>> edge_cnt(n+1,vector<int>(n+1,0));
+	vector<tuple<int,int,int>> g;
+	vector<int> ans;
+	for(int i=1;i<=n;i++)dis[i][i]=0;
+	for(int i=1;i<=m;i++){
+		int u=0,v=0,w=0;
+		cin>>u>>v>>w;
+		dis[u][v]=w;
+		dis[v][u]=w;
+		g.emplace_back(u,v,w);
+	}
+	for(int k=1;k<=n;k++){
+		for(int i=1;i<=n;i++){
+			for(int j=1;j<=n;j++){
+				if(dis[i][k]+dis[k][j]<dis[i][j])dis[i][j]=dis[i][k]+dis[k][j];
+			}
+		}
+	}
+	for(auto [u,v,w]:g){
+		for(int i=1;i<=n;i++){
+			if(dis[i][u]+w==dis[i][v])edge_cnt[i][v]++;
+			if(dis[i][v]+w==dis[i][u])edge_cnt[i][u]++;
+		}
+	}
+	for(int s=1;s<=n;s++){
+		for(int t=s+1;t<=n;t++){
+			int cnt=0;
+			for(int k=1;k<=n;k++){
+				if(dis[s][k]+dis[k][t]==dis[s][t])cnt+=edge_cnt[s][k];
+			}
+			ans.push_back(cnt);
+		}
+	}
+	for(auto nn:ans){
+		cout<<nn<<" ";
+	}
+	return 0;
+}

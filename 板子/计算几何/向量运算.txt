@@ -1,0 +1,89 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define AKARIZA ios::sync_with_stdio(false);cin.tie(0);
+using ll=long long;
+using db=double;
+const int maxn=1e5+5,mod=998244353;
+const db eps=1e-12;
+struct vec{
+	db x,y;
+};
+vec plusvec(vec a,vec b){
+	return {a.x+b.x,a.y+b.y};
+}
+vec minu(vec a,vec b){
+	return {a.x-b.x,a.y-b.y};
+}
+vec mul_k(vec a,db k){
+	return {a.x*k,a.y*k};
+}
+db dotmul(vec a,vec b){
+	return a.x*b.x+a.y*b.y;
+}
+db getlen(vec a){
+	return sqrt(dotmul(a,a));
+}
+int main(){
+    AKARIZA
+	db s;
+	int n;
+	cin>>s>>n;
+	vector<vec> p(n);
+	for(int i=0;i<n;++i)cin>>p[i].x>>p[i].y;
+	vector<db> len(n-1);
+	for(int i=0;i+1<n;++i)len[i]=getlen(minu(p[i+1],p[i]));
+	int k=0;
+	db dis=s;
+	while(dis>len[k]){
+		dis=dis-len[k];
+		k++;
+	}
+	vec dirm=mul_k(minu(p[k+1],p[k]),1.0/len[k]),pos=plusvec(p[k],mul_k(dirm,dis));
+	db mseg=len[k]-dis;
+	int t=0;
+	vec spos=p[0];
+	vec dirs=mul_k(minu(p[1],p[0]),1.0/len[0]);
+	db shseg=len[0];
+	db nowdis=1e30;
+	while(k<n-1&&t<n-1){
+		if(mseg<eps){
+			k++;
+			if(k>=n-1)break;
+			dirm=mul_k(minu(p[k+1],p[k]),1.0/len[k]);
+			mseg=len[k];
+			pos=p[k];
+			continue;
+		}
+		if(shseg<eps){
+			t++;
+			if(t>=n-1)break;
+			dirs=mul_k(minu(p[t+1],p[t]),1.0/len[t]);
+			shseg=len[t];
+			spos=p[t];
+			continue;
+		}
+		db dt=min(mseg,shseg);
+		vec U=minu(pos,spos);
+		vec V=minu(dirm,dirs);
+		db a=dotmul(V,V),b=2*dotmul(U,V),c=dotmul(U,U);
+		db minn=c;
+		if(a>eps){
+			db t0=-b/(2*a);
+			if(t0>0&&t0<dt){
+				db val=a*t0*t0+b*t0+c;
+				minn=min(minn,val);
+			}
+		}
+		vec Uend=plusvec(U,mul_k(V,dt));
+		minn=min(minn,dotmul(Uend,Uend));
+		nowdis=min(nowdis,minn);
+		pos=plusvec(pos,mul_k(dirm,dt));
+		spos=plusvec(spos,mul_k(dirs,dt));
+		mseg-=dt;
+		shseg-=dt;
+	}
+	cout<<fixed<<setprecision(10)<<sqrt(nowdis)<<endl;
+	return 0;
+}
+
+

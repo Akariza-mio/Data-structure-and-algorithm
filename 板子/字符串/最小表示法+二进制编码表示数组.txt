@@ -1,0 +1,70 @@
+#include<bits/stdc++.h>
+#define AKARIZA ios::sync_with_stdio(false);cin.tie(0);
+using namespace std;
+int booth(vector<int> a){
+	int n=a.size();
+	int i=0,j=1,k=0;
+	while(i<n&&j<n&&k<n){
+		int x=a[(i+k)%n],y=a[(j+k)%n];
+		if(x==y)++k;
+		else if(x>y){
+			i=i+k+1;
+			if(i<=j)i=j+1;
+			k=0;
+		}else{
+			j=j+k+1;
+			if(j<=i)j=i+1;
+			k=0;
+		}
+	}
+	return min(i,j);
+}
+string minsym(string s){
+	int k=0,i=0,j=1,n=s.size();
+	while(k<n&&i<n&&j<n){
+		if(s[(i+k)%n]==s[(j+k)%n])k++;
+		else{
+			s[(i+k)%n]>s[(j+k)%n]?i=i+k+1:j=j+k+1;
+			if(i==j)i++;
+			k=0;
+		}
+	}
+	i=min(i,j);
+	string tp=s+s;
+	return tp.substr(i,n);
+}
+
+int main(){
+	AKARIZA
+	int N;
+	cin>>N;
+	unordered_set<string> all;
+	all.reserve(N*2);
+	while(N--){
+		string s;
+		cin>>s;
+		int n=s.size();
+		vector<vector<int>>p(26);
+		for(int i=0;i<n;i++)p[s[i]-'a'].push_back(i);
+		vector<int>b(n);
+		for(int i=0;i<n;i++){
+			int pj;
+			auto v=p[s[i]-'a'];
+			auto it=lower_bound(v.begin(),v.end(),i);
+			if(it==v.begin())pj=v.back();
+			else pj=*(--it);
+			b[i]=(i-pj+n)%n;
+		}
+		int st=booth(b);
+		string key;
+		key.resize(n*2);
+		for(int i=0;i<n;i++){
+			int val=b[(st+i)%n];
+			key[2*i]=char((val>>8)&255);
+			key[2*i+1]=char(val&255);
+		}
+		all.insert(move(key));
+	}
+	cout<<all.size()<<endl;
+	return 0;
+}

@@ -1,0 +1,78 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define AKARIZA ios::sync_with_stdio(false);cin.tie(0);
+using ll=long long;
+const ll maxn=1e5+10,mod=998244353;
+struct p{
+	ll x,y;
+};
+bool cmp(p a,p b){
+	if(a.x!=b.x)return a.x<b.x;
+	return a.y<b.y;
+}
+ll cross(p o,p a,p b){
+	return (a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x);
+}
+bool onseg(p a,p b,p tp){
+	if(cross(a,b,tp)!=0)return 0;
+	return (min(a.x,b.x)<=tp.x&&tp.x<=max(a.x,b.x)&&min(a.y,b.y)<=tp.y&&tp.y<=max(a.y,b.y));	
+}
+vector<p> convexhull(vector<p> aa){
+	sort(aa.begin(),aa.end(),cmp);
+	vector<p> tp;
+	tp.reserve(aa.size()*2);
+	for(ll i=0;i<aa.size();++i){
+		while(tp.size()>=2&&cross(tp[tp.size()-2],tp[tp.size()-1],aa[i])<=0){
+			tp.pop_back();
+		}
+		tp.push_back(aa[i]);
+	}
+	ll n=tp.size()+1;
+	for(ll i=aa.size()-2;i>=0;--i){
+		while(tp.size()>=n&&cross(tp[tp.size()-2],tp[tp.size()-1],aa[i])<=0){
+			tp.pop_back();
+		}
+		tp.push_back(aa[i]);
+	}
+	if(tp.size()>1)tp.pop_back();
+	auto it=min_element(tp.begin(),tp.end(),cmp);
+	rotate(tp.begin(),it,tp.end());
+	return tp;
+}
+bool in_convexhull(const vector<p>& h,p a){
+	ll n=h.size();
+	if(n==1)return a.x==h[0].x&&a.y==h[0].y;
+	if(n==2)return onseg(h[0],h[1],a);
+	if(cross(h[0],h[1],a)<0||cross(h[0],h[n-1],a)>0)return 0;
+	ll l=1,r=n-1;
+	while(l+1<r){
+		ll mid=(l+r)/2;
+		if(cross(h[0],h[mid],a)>=0)l=mid;
+		else r=mid;
+	}
+	ll area=cross(h[l],h[l+1],a);
+	if(area<0)return false;
+	if(area==0)return onseg(h[l],h[l+1],a);
+	if(cross(h[0],h[l],a)==0)return onseg(h[0],h[l],a);
+	if(cross(h[0],h[l+1],a)==0)return onseg(h[0],h[l+1],a);
+	return 1;
+}
+int main(){
+	AKARIZA
+	ll n,q;
+	cin>>n;
+	vector<p> a(n);
+	for(ll i=0;i<n;++i){
+		cin>>a[i].x>>a[i].y;
+	}
+	vector<p> tubao=convexhull(a);
+	cin>>q;
+	while(q--){
+		p tp;
+		cin>>tp.x>>tp.y;
+		if(in_convexhull(tubao,tp))cout<<"YES"<<endl;
+		else cout<<"NO"<<endl;
+	}
+	return 0;
+}
+

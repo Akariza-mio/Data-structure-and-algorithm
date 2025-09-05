@@ -1,0 +1,102 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define AKARIZA ios::sync_with_stdio(false);cin.tie(0);
+using ll=long long;
+using db=double;
+const int maxn=5e4+10,mod=998244353;
+const db eps=1e-9;
+int dcmp(db x){
+	if(fabs(x)<eps)return 0;
+	return x<0?-1:1;
+}
+struct pp{
+	db x,y;
+	pp(db x=0,db y=0):x(x),y(y){}
+};
+pp minu(const pp &a,const pp &b){
+	return {a.x-b.x,a.y-b.y};   
+}
+pp plusvec(const pp &a,const pp &b){
+	return {a.x+b.x,a.y+b.y}; 
+}
+pp mul_k(const pp &a,db k){
+	return {a.x*k,a.y*k};
+}
+pp div(const pp&a,db k){ 
+	return {a.x/k,a.y/k}; 
+}
+db dotmul(const pp &a,const pp &b){
+	return a.x*b.x+a.y*b.y;
+}
+db cross(const pp &a,const pp &b){
+	return a.x*b.y-a.y*b.x;
+}
+db getlen(const pp &a){
+	return sqrt(a.x*a.x+a.y*a.y);
+}
+struct line{
+	pp p,q;
+	db angle;
+	line() {}
+	line(pp p, pp q):p(p),q(q){
+		angle=atan2(q.y-p.y,q.x-p.x);
+	}
+    bool onleft(pp r)const{
+		return dcmp(cross(minu(q,p),minu(r,p)))>= 0;
+	}
+	pp intersec(const line &b)const{
+		pp u=minu(p,b.p);
+		db t=cross(minu(b.q,b.p),u)/cross(minu(q,p),minu(b.q,b.p));
+		return plusvec(p,mul_k(minu(q,p),t));
+	}
+};
+bool cmp(const line &a,const line &b){
+	int d=dcmp(a.angle-b.angle);
+	if(d==0)return a.onleft(b.p);
+	return a.angle<b.angle;
+}
+bool halfplane_intersect(vector<line>lines){
+	sort(lines.begin(),lines.end(),cmp);
+	deque<line>dq;
+	deque<pp>tp;
+	for(auto l:lines){
+		while(tp.size()&&!l.onleft(tp.back())){tp.pop_back();dq.pop_back();}
+		while(tp.size()&&!l.onleft(tp.front())){tp.pop_front();dq.pop_front();}
+		if(!dq.empty()&&dcmp(cross(minu(l.q,l.p),minu(dq.back().q,dq.back().p)))==0)continue;
+		if(!dq.empty())tp.push_back(dq.back().intersec(l));
+		dq.push_back(l);
+	}
+	while(tp.size()&&!dq.front().onleft(tp.back())){
+		tp.pop_back();dq.pop_back();
+	}
+	return dq.size()>2;
+}
+vector<line> build(const vector<pp>&poly,db d){
+	int n=poly.size();
+	vector<line>tp;
+	for(int i=0;i<n;++i){
+		pp a=poly[i],b=poly[(i+1)%n];
+		pp dir=minu(b,a);
+		db len=getlen(dir);
+		pp nor=div(pp(-dir.y,dir.x),len);
+		pp na=plusvec(a,mul_k(nor,d)),nb=plusvec(b,mul_k(nor,d));
+		tp.emplace_back(na,nb);
+	}
+	return tp;
+}
+int main(){
+	AKARIZA
+	int n;
+	cin>>n;
+	vector<pp> poly(n);
+	for(int i=0;i<n;++i)cin>>poly[i].x>>poly[i].y;
+	db l=0,r=1e9;
+	for(int i=0;i<60;++i){
+		db mid=(l+r)/2;
+		auto hps=build(poly,mid);
+		if(halfplane_intersect(hps))l=mid;
+		else r=mid;
+	}
+	cout<<fixed<<setprecision(10)<<l<<endl;
+	return 0;
+}

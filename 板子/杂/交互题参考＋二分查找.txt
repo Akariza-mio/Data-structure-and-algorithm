@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+int f(int x){
+	cout<<"? "<<x<<endl;
+	cout.flush();
+	int q;
+	cin>>q;
+	return q;
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int T;
+	cin>>T;
+	while(T--){
+	    int n;
+		cin>>n;
+		int l=1,r=100000;
+		while(r>l){
+			int mid=(l+r)/2;
+		int q1=f(mid);
+		int q2=f(mid+1);
+		if(q2-q1>0)r=mid;
+		else l=mid+1;
+		}
+		cout<<"! "<<l<<endl;
+		cout.flush();
+	}
+	return 0;
+}
+
+

@@ -1,0 +1,40 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const ll mod=1e9+7,base=131;
+int n,k;
+vector<int> a;
+bool check(int x){
+	unordered_map<ll,ll> cnt;
+	ll hash=0,power=1;
+	for(int i=0;i<x;i++){
+		hash=(hash*base+a[i])%mod;
+		if(i<x-1)power=(power*base)%mod;
+	}
+	cnt[hash]++;
+	for(int i=x;i<n;i++){
+		hash=((hash-a[i-x]*power%mod+mod)*base+a[i])%mod;
+		cnt[hash]++;
+	}
+	for(auto tp:cnt){
+		if(tp.second>=k)return true;
+	}
+	return false;
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cin>>n>>k;
+	a.resize(n);
+	for(int i=0;i<n;i++)cin>>a[i];
+	int l=1,r=n,ans=-1;
+	while(l<r){
+		int mid=(l+r)/2;
+		if(check(mid)){
+			ans=mid;
+			l=mid+1;
+		}else r=mid;
+	}
+	cout<<ans;
+	return 0;
+}

@@ -1,0 +1,54 @@
+#include<bits/stdc++.h>
+using namespace std;
+const double pi=acos(-1);
+typedef complex<double> Complex;
+void FFT(vector<Complex> &a,int inv){
+	int n=a.size();
+	for(int i=1,j=0;i<n;i++){
+		int bit=n>>1;
+		while(j>=bit){j-=bit;bit>>=1;}
+		j+=bit;
+		if(i<j)swap(a[i],a[j]);
+	}
+	for(int len=2;len<=n;len<<=1){
+		Complex wn=polar(1.0,inv*(2*pi/len));
+		for(int i=0;i<n;i+=len){
+			Complex w(1,0);
+			for(int j=0;j<len/2;j++){
+				Complex u=a[i+j],v=a[i+j+len/2]*w;
+				a[i+j]=u+v;
+				a[i+j+len/2]=u-v;
+				w*=wn;
+			}
+		}
+	}
+	if(inv==-1){
+		for(auto &x:a)x/=n;
+	}
+}
+vector<int> mul(vector<int> a,vector<int> b){
+	int n=a.size(),m=b.size(),sz=1;
+	while(sz<n+m-1)sz<<=1;
+	vector<Complex> fa(sz),fb(sz);
+	for(int i=0;i<n;i++)fa[i]=a[i];
+	for(int i=0;i<m;i++)fb[i]=b[i];	
+	FFT(fa,1);
+	FFT(fb,1);
+	for(int i=0;i<sz;i++)fa[i]*=fb[i];
+	FFT(fa,-1);
+	vector<int> res(sz);
+	for(int i=0;i<sz;i++)res[i]=round(fa[i].real());
+	return res;
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n,m;
+	cin>>n>>m;
+	vector<int> a(n+1),b(m+1);
+	for(int i=0;i<n+1;i++)cin>>a[i];
+	for(int i=0;i<m+1;i++)cin>>b[i];
+	vector<int> ans=mul(a,b);
+	for(int i=0;i<n+m+1;i++)cout<<ans[i]<<" ";
+	return 0;
+}

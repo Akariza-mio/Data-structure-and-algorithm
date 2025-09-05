@@ -1,0 +1,50 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+const int maxn=3e6+5;
+int q;
+int trie[maxn][130],cnt[maxn];
+void insert(string s){
+	int n=s.size(),u=0;
+	for(int i=0;i<n;i++){
+		int t=s[i];
+		if(!trie[u][t])trie[u][t]=++q;
+		u=trie[u][t];
+		cnt[u]++;
+	}
+}
+int find(string s){
+	int n=s.size(),u=0;
+	for(int i=0;i<n;i++){
+		int t=s[i];
+		if(!trie[u][t])return 0;
+		u=trie[u][t];
+	}
+	return cnt[u];
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int T;
+	cin>>T;
+	while(T--){
+		for(int i=0;i<=q;i++){
+			cnt[i]=0;
+			for(int j=0;j<=130;j++)trie[i][j]=0;
+		}
+		q=0;
+		int n=0,Q=0;
+		cin>>n>>Q;
+		while(n--){
+			string tp="";
+			cin>>tp;
+			insert(tp);
+		}
+		while(Q--){
+			string tp1="";
+			cin>>tp1;
+			cout<<find(tp1)<<endl;
+		}
+	}
+	return 0;
+}

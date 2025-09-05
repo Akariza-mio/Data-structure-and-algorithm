@@ -1,0 +1,53 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long;
+struct item{
+	int p;
+	int v;
+};
+ll psum[5005],vsum[5005],k_vsum[5005];
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n,V,k;
+	ll ans=0;
+	cin>>n>>V>>k;
+	vector<item> a(n);
+	for(int i=0;i<n;i++)cin>>a[i].v;
+	for(int i=0;i<n;i++)cin>>a[i].p;
+	sort(a.begin(),a.end(),[](item a,item b){return a.p>b.p;});
+	for(int i=1;i<=n;i++){
+		psum[i]=psum[i-1]+a[i-1].p;
+		vsum[i]=vsum[i-1]+a[i-1].v;
+	}
+	priority_queue<ll,vector<ll>,greater<ll>> pq;
+	ll sum=0;
+	for(int i=1;i<=n;i++){
+		pq.push(a[i-1].v);
+		sum+=a[i-1].v;
+		if(pq.size()>k){
+			sum=sum-pq.top();
+			pq.pop();
+		}
+		if(pq.size()==k)k_vsum[i]=sum;
+		else k_vsum[i]=0;
+	}
+	vector<vector<ll>> dp(n+5,vector<ll>(V+1,0));
+	for(int i=n;i>=1;i--){
+		dp[i]=dp[i+1];
+		ll v=a[i-1].v,p=a[i-1].p;
+		for(int j=V;j>=v;j--){
+			dp[i][j]=max(dp[i][j],dp[i][j-v]+p);
+		}
+	}
+	for(int i=k;i<=n;i++){
+		//if(pq.size()<k&&k_vsum[i]==0)continue;
+		ll usedv=vsum[i]-k_vsum[i];
+		if(usedv>V)continue;
+		ll leftv=V-usedv;
+		ll tp=psum[i]+dp[i+1][leftv];
+		ans=max(ans,tp);
+	}
+	cout<<ans;
+	return 0;
+}
